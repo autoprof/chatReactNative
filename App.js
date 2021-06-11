@@ -83,37 +83,14 @@ const App: () => Node = () => {
 
 	var scrollRef = useRef();
 	const [inputText, setInputText] = useState("");
+	const [pseudo, setPseudo] = useState("anon");
+	const [editable, setEditable] = useState(false);
 	const [data, setData] = useState([{text: "Hello !!!", date: "01/01/2021 00:00:00", pseudo: "Pseudo"}]);
 
 	useEffect(() => {
 
 		if (scrollRef.current)
 			scrollRef.current.scrollToEnd({animated: true});
-
-
-		//~ if (!fetched) fetch("https://jsonplaceholder.typicode.com/posts")
-			//~ .then(d => d.json())
-			//~ .then(resp => {
-				//~ shuffle(resp)
-				//~ setData(data.concat(resp.map(d => {
-					//~ return {
-						//~ date: "01/01/2021 00:00:00",
-						//~ pseudo: "Pseudo:" + d.userId,
-						//~ text: d.body,
-					//~ }
-				//~ })));
-			//~ });
-
-			//~ fetched = true;
-
-		//~ var id = setInterval(function () {
-			//~ addMsg("Message Num: " + count++);
-		//~ }, 1000);
-
-		//~ return () => {
-			//~ clearInterval(id);
-		//~ };
-
 
 		webSocket.onmessage = function (event) {
 			addMessage(JSON.parse(event.data));
@@ -131,12 +108,30 @@ const App: () => Node = () => {
 	}
 
 	function sendMsg() {
-		//webSocket.send(.....)
+		webSocket.send(JSON.stringify({
+			pseudo,
+			text: inputText,
+			date: "01/01/2021 00:00:00"
+		}));
+		setInputText("");
 	}
 
 
 	return (
 		<View style={[styles.container, {flexDirection: "column"}]}>
+			{editable ?
+				<View style={{ height: 50, }}>
+					<View style={{ flex: 1, flexDirection: "row", height: 50,  }}>
+						<TextInput
+							onChangeText={setPseudo}
+							value={pseudo}
+							style={{ flex: 1, backgroundColor: "lightgrey", borderColor: "black", borderStyle: "solid", borderWidth: 1 }}
+						/>
+						<Button title="ok" style={{width: 30}} color="grey" style={{borderColor: "black", borderStyle: "solid", borderWidth: 5}} onPress={() => setEditable(false)} />
+					</View>
+				</View>  :
+				<Text style={{ height: 25, color: "white", backgroundColor: "black", borderColor: "black", borderStyle: "solid", borderWidth: 1 }} onPress={() => setEditable(true)}>{pseudo}</Text>
+			}
 			<Messages scrollRef={scrollRef} data={data}/>
 			<View style={{ height: 50, }}>
 				<View style={{ flex: 1, flexDirection: "row", height: 50,  }}>
